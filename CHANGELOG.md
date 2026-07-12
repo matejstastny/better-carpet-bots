@@ -1,5 +1,9 @@
 # Changelog
 
+## [Current]
+### CI
+- Added automatic chanelog managment
+
 ## [1.0.1] - 2026-07-12
 ### Fixed
 - Removed hardcoded local Java path from `gradle.properties` that broke CI builds
