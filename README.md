@@ -1,10 +1,10 @@
-<img src="https://github.com/matejstastny/better-carpet-bots/blob/main/src/main/resources/icon.png?raw=true" alt="Modpack icon" width="35%" align="right">
+<img src="https://github.com/matejstastny/better-carpet-bots/blob/main/src/main/resources/icon.png?raw=true" alt="Modpack icon" width="25%" align="right">
 
 # Better Carpet Bots
 
 A [Carpet mod](https://github.com/gnembon/fabric-carpet) extension that adds powerful bot management commands to your Minecraft server.
 
-## Requirements
+### Requirements
 
 - [Fabric Loader](https://fabricmc.net/) ≥ 0.15.0
 - [Carpet Mod](https://modrinth.com/mod/carpet)
@@ -69,17 +69,5 @@ The screen stays live - items the bot picks up appear immediately. The screen cl
 ## Real Player Protection
 
 When a player authenticated via Mojang joins for the first time, their name is permanently locked. `/bot spawn <thatName>` will be rejected from that point on. Any existing offline-UUID bot data for that name is backed up to `world/bot-backup/<name>.bak` before being cleaned up, so nothing is lost.
-
-## Building
-
-```sh
-./gradlew build
-```
-
-## Releasing
-
-```sh
-./scripts/release.sh
-```
 
 The script reads the Minecraft version from `gradle.properties`, prompts for the new mod version, updates all relevant files, commits, and pushes a tag in the format `v<mod_version>+<mc_version>` (e.g. `v1.0.0+1.21.11`). The release CI picks up from there.
