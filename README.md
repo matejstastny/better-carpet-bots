@@ -1,3 +1,5 @@
+<img src="https://github.com/matejstastny/better-carpet-bots/blob/main/src/main/resources/icon.png?raw=true" alt="Modpack icon" width="35%" align="right">
+
 # Better Carpet Bots
 
 A [Carpet mod](https://github.com/gnembon/fabric-carpet) extension that adds powerful bot management commands to your Minecraft server.
