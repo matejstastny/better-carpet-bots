@@ -1,0 +1,18 @@
+# Changelog
+
+## [1.0.1] - 2026-07-12
+### Fixed
+- Removed hardcoded local Java path from `gradle.properties` that broke CI builds
+- Fixed release workflow tag glob pattern (`+` is a quantifier in GitHub Actions globs)
+- `/bot <name>` commands work on the calling player themselves, not only bots
+
+## [1.0.0] - 2026-07-12
+### Added
+- `/bot spawn [<name>]` — spawn a bot at your position
+- `/bot <name>` actions: attack, use, jump, sneak, sprint, stop, look, drop, dropstack, swaphands, inventory, kill
+- `attack`/`use` support `continuous` and `interval <ticks>` subcommands
+- `/bots` management commands: list, stop, kill, permissionLevel, skin
+- Bot inventory screen with armor slot filtering and glass pane placeholder labels
+- Bot inventory closes automatically when opener moves more than 10 blocks away
+- Real player protection — names of players who have joined are permanently locked from bot use
+- Offline player data for protected names is backed up to `world/bot-backup/<name>.bak`

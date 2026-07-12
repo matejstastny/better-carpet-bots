@@ -40,12 +40,12 @@ public class BotInventoryHandler extends ScreenHandler {
         this.opener = (ServerPlayerEntity) openerInv.player;
         this.fillerInv = new SimpleInventory(4);
 
-        this.armorOffhandPlaceholders = new ItemStack[]{
-            makePlaceholder(Items.RED_STAINED_GLASS_PANE,    "Helmet"),
+        this.armorOffhandPlaceholders = new ItemStack[] {
+            makePlaceholder(Items.RED_STAINED_GLASS_PANE, "Helmet"),
             makePlaceholder(Items.ORANGE_STAINED_GLASS_PANE, "Chestplate"),
             makePlaceholder(Items.YELLOW_STAINED_GLASS_PANE, "Leggings"),
-            makePlaceholder(Items.GREEN_STAINED_GLASS_PANE,  "Boots"),
-            makePlaceholder(Items.CYAN_STAINED_GLASS_PANE,   "Offhand"),
+            makePlaceholder(Items.GREEN_STAINED_GLASS_PANE, "Boots"),
+            makePlaceholder(Items.CYAN_STAINED_GLASS_PANE, "Offhand"),
         };
 
         // Point slots directly at the bot's live inventory - no proxy.
@@ -63,11 +63,11 @@ public class BotInventoryHandler extends ScreenHandler {
         }
 
         // Row 4: armor (type-filtered) + offhand + filler
-        addSlot(new ArmorSlot(botInv, 39,  8, 90, EquipmentSlot.HEAD));
+        addSlot(new ArmorSlot(botInv, 39, 8, 90, EquipmentSlot.HEAD));
         addSlot(new ArmorSlot(botInv, 38, 26, 90, EquipmentSlot.CHEST));
         addSlot(new ArmorSlot(botInv, 37, 44, 90, EquipmentSlot.LEGS));
         addSlot(new ArmorSlot(botInv, 36, 62, 90, EquipmentSlot.FEET));
-        addSlot(new Slot(botInv, 40, 80, 90));  // offhand: any item
+        addSlot(new Slot(botInv, 40, 80, 90)); // offhand: any item
         for (int i = 0; i < 4; i++) {
             addSlot(new FillerSlot(fillerInv, i, 98 + i * 18, 90));
         }
@@ -108,8 +108,7 @@ public class BotInventoryHandler extends ScreenHandler {
         for (int i = 0; i < ARMOR_OFFHAND_SLOTS.length; i++) {
             if (this.slots.get(ARMOR_OFFHAND_SLOTS[i]).getStack().isEmpty()) {
                 opener.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(
-                    this.syncId, this.nextRevision(),
-                    ARMOR_OFFHAND_SLOTS[i], armorOffhandPlaceholders[i]));
+                        this.syncId, this.nextRevision(), ARMOR_OFFHAND_SLOTS[i], armorOffhandPlaceholders[i]));
             }
         }
     }
@@ -139,8 +138,8 @@ public class BotInventoryHandler extends ScreenHandler {
 
     private static ItemStack makePlaceholder(Item item, String label) {
         ItemStack pane = new ItemStack(item);
-        pane.set(DataComponentTypes.CUSTOM_NAME,
-            Text.literal(label).styled(s -> s.withColor(Formatting.WHITE).withItalic(false)));
+        pane.set(DataComponentTypes.CUSTOM_NAME, Text.literal(label).styled(s -> s.withColor(Formatting.WHITE)
+                .withItalic(false)));
         return pane;
     }
 
@@ -167,13 +166,27 @@ public class BotInventoryHandler extends ScreenHandler {
         FillerSlot(Inventory inv, int index, int x, int y) {
             super(inv, index, x, y);
             this.pane = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
-            this.pane.set(DataComponentTypes.CUSTOM_NAME,
-                Text.literal(" ").styled(s -> s.withItalic(false)));
+            this.pane.set(DataComponentTypes.CUSTOM_NAME, Text.literal(" ").styled(s -> s.withItalic(false)));
         }
 
-        @Override public ItemStack getStack()                           { return pane; }
-        @Override public boolean hasStack()                             { return false; }
-        @Override public boolean canInsert(ItemStack stack)             { return false; }
-        @Override public boolean canTakeItems(PlayerEntity player)      { return false; }
+        @Override
+        public ItemStack getStack() {
+            return pane;
+        }
+
+        @Override
+        public boolean hasStack() {
+            return false;
+        }
+
+        @Override
+        public boolean canInsert(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean canTakeItems(PlayerEntity player) {
+            return false;
+        }
     }
 }

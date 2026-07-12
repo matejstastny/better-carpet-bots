@@ -70,4 +70,12 @@ The screen stays live - items the bot picks up appear immediately. The screen cl
 
 When a player authenticated via Mojang joins for the first time, their name is permanently locked. `/bot spawn <thatName>` will be rejected from that point on. Any existing offline-UUID bot data for that name is backed up to `world/bot-backup/<name>.bak` before being cleaned up, so nothing is lost.
 
-The script reads the Minecraft version from `gradle.properties`, prompts for the new mod version, updates all relevant files, commits, and pushes a tag in the format `v<mod_version>+<mc_version>` (e.g. `v1.0.0+1.21.11`). The release CI picks up from there.
+## Releasing
+
+Add a `## [x.y.z]` section to `CHANGELOG.md`, then run:
+
+```sh
+./release.sh
+```
+
+The script reads the Minecraft version from `gradle.properties`, prompts for the new mod version, shows the changelog section for confirmation, commits, and pushes a tag `v<mod_version>+<mc_version>`. The release CI publishes to Modrinth and creates a GitHub Release using the changelog text.

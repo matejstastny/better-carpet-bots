@@ -2,6 +2,15 @@ package matejstastny.bettercarpetbots;
 
 import carpet.CarpetServer;
 import carpet.patches.EntityPlayerMPFake;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.command.permission.LeveledPermissionPredicate;
 import net.minecraft.command.permission.PermissionCheck;
 import net.minecraft.scoreboard.Scoreboard;
@@ -12,16 +21,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.WorldSavePath;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 public final class BotManager {
     public static final String TEAM_NAME = "bots";
@@ -38,8 +37,14 @@ public final class BotManager {
         CommandManager.OWNERS_CHECK,
     };
 
-    public static int getBotPermissionLevel() { return botPermissionLevel; }
-    public static void setBotPermissionLevel(int level) { botPermissionLevel = level; }
+    public static int getBotPermissionLevel() {
+        return botPermissionLevel;
+    }
+
+    public static void setBotPermissionLevel(int level) {
+        botPermissionLevel = level;
+    }
+
     public static PermissionCheck getBotPermissionCheck() {
         return LEVEL_CHECKS[Math.max(0, Math.min(4, botPermissionLevel))];
     }
@@ -63,7 +68,9 @@ public final class BotManager {
         sb.addScoreHolderToTeam(playerName, team);
     }
 
-    public static String getGlobalBotSkinUrl() { return globalBotSkinUrl; }
+    public static String getGlobalBotSkinUrl() {
+        return globalBotSkinUrl;
+    }
 
     public static void setGlobalBotSkinUrl(String url) {
         if (url.startsWith("\"") && url.endsWith("\"")) {
@@ -74,10 +81,12 @@ public final class BotManager {
 
     public static boolean applySkin(MinecraftServer server, ServerPlayerEntity bot, String url) {
         try {
-            server.getCommandManager().parseAndExecute(
-                bot.getCommandSource().withPermissions(LeveledPermissionPredicate.OWNERS).withSilent(),
-                "skin set web slim \"" + url + "\""
-            );
+            server.getCommandManager()
+                    .parseAndExecute(
+                            bot.getCommandSource()
+                                    .withPermissions(LeveledPermissionPredicate.OWNERS)
+                                    .withSilent(),
+                            "skin set web slim \"" + url + "\"");
             return true;
         } catch (Exception e) {
             return false;
@@ -121,9 +130,9 @@ public final class BotManager {
         if (!Files.exists(file)) return;
         try {
             Files.readAllLines(file, StandardCharsets.UTF_8).stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .forEach(realPlayerNames::add);
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(realPlayerNames::add);
         } catch (IOException e) {
             // leave set empty on read error
         }
@@ -141,16 +150,14 @@ public final class BotManager {
 
     private static void deleteOfflinePlayerData(MinecraftServer server, String name) {
         try {
-            UUID offlineUUID = UUID.nameUUIDFromBytes(
-                ("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
+            UUID offlineUUID = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
             Path playerDataDir = server.getSavePath(WorldSavePath.PLAYERDATA);
             Path backupDir = server.getSavePath(WorldSavePath.ROOT).resolve("bot-backup");
             Files.createDirectories(backupDir);
 
             Path dat = playerDataDir.resolve(offlineUUID + ".dat");
             if (Files.exists(dat)) {
-                Files.copy(dat, backupDir.resolve(name + ".bak"),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(dat, backupDir.resolve(name + ".bak"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 Files.delete(dat);
             }
             Files.deleteIfExists(playerDataDir.resolve(offlineUUID + ".dat_old"));
@@ -161,8 +168,8 @@ public final class BotManager {
 
     private static Path getRealPlayersFile(MinecraftServer server) {
         return server.getSavePath(WorldSavePath.ROOT)
-            .resolve("better-carpet-bots")
-            .resolve("real-players.txt");
+                .resolve("better-carpet-bots")
+                .resolve("real-players.txt");
     }
 
     // ---

@@ -1,11 +1,9 @@
 package matejstastny.bettercarpetbots;
 
 import carpet.CarpetExtension;
+import com.mojang.brigadier.CommandDispatcher;
 import matejstastny.bettercarpetbots.command.BotCommand;
 import matejstastny.bettercarpetbots.command.BotsCommand;
-
-import com.mojang.brigadier.CommandDispatcher;
-
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,8 +17,8 @@ public class CarpetBotsExtension implements CarpetExtension {
     }
 
     @Override
-    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher,
-                                 CommandRegistryAccess registryAccess) {
+    public void registerCommands(
+            CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         BotCommand.register(dispatcher);
         BotsCommand.register(dispatcher);
     }

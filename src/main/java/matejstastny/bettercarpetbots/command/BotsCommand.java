@@ -1,64 +1,56 @@
 package matejstastny.bettercarpetbots.command;
 
+import static net.minecraft.server.command.CommandManager.*;
+
 import carpet.fakes.ServerPlayerInterface;
 import carpet.patches.EntityPlayerMPFake;
-import matejstastny.bettercarpetbots.BotManager;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
+import java.util.List;
+import matejstastny.bettercarpetbots.BotManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.List;
-
-import static net.minecraft.server.command.CommandManager.*;
-
 public class BotsCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal("bots")
-            .requires(requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
-
-            .then(literal("list")
-                .executes(BotsCommand::listBots))
-
-            .then(literal("stop")
-                .executes(BotsCommand::stopAll))
-
-            .then(literal("kill")
-                .executes(BotsCommand::killAll))
-
-            .then(literal("permissionLevel")
-                .then(argument("level", IntegerArgumentType.integer(0, 4))
-                    .executes(ctx -> {
-                        int level = IntegerArgumentType.getInteger(ctx, "level");
-                        BotManager.setBotPermissionLevel(level);
-                        ctx.getSource().sendFeedback(() -> Text.literal("/bot permission level set to " + level + "."), true);
-                        return level;
-                    })))
-
-            .then(literal("skin")
-                .then(literal("all")
-                    .then(argument("url", StringArgumentType.greedyString())
-                        .executes(ctx -> skinAll(ctx, StringArgumentType.getString(ctx, "url")))))
-                .then(argument("name", StringArgumentType.word())
-                    .suggests((ctx, builder) -> {
-                        for (ServerPlayerEntity p : BotManager.getActiveBots(ctx.getSource().getServer())) {
-                            builder.suggest(p.getNameForScoreboard());
-                        }
-                        return builder.buildFuture();
-                    })
-                    .then(argument("url", StringArgumentType.greedyString())
-                        .executes(ctx -> skinOne(
-                                ctx,
-                                StringArgumentType.getString(ctx, "name"),
-                                StringArgumentType.getString(ctx, "url"))))))
-        );
+                .requires(requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
+                .then(literal("list").executes(BotsCommand::listBots))
+                .then(literal("stop").executes(BotsCommand::stopAll))
+                .then(literal("kill").executes(BotsCommand::killAll))
+                .then(literal("permissionLevel")
+                        .then(argument("level", IntegerArgumentType.integer(0, 4))
+                                .executes(ctx -> {
+                                    int level = IntegerArgumentType.getInteger(ctx, "level");
+                                    BotManager.setBotPermissionLevel(level);
+                                    ctx.getSource()
+                                            .sendFeedback(
+                                                    () -> Text.literal("/bot permission level set to " + level + "."),
+                                                    true);
+                                    return level;
+                                })))
+                .then(literal("skin")
+                        .then(literal("all")
+                                .then(argument("url", StringArgumentType.greedyString())
+                                        .executes(ctx -> skinAll(ctx, StringArgumentType.getString(ctx, "url")))))
+                        .then(argument("name", StringArgumentType.word())
+                                .suggests((ctx, builder) -> {
+                                    for (ServerPlayerEntity p : BotManager.getActiveBots(
+                                            ctx.getSource().getServer())) {
+                                        builder.suggest(p.getNameForScoreboard());
+                                    }
+                                    return builder.buildFuture();
+                                })
+                                .then(argument("url", StringArgumentType.greedyString())
+                                        .executes(ctx -> skinOne(
+                                                ctx,
+                                                StringArgumentType.getString(ctx, "name"),
+                                                StringArgumentType.getString(ctx, "url")))))));
     }
 
     private static int listBots(CommandContext<ServerCommandSource> ctx) {
@@ -116,7 +108,11 @@ public class BotsCommand {
             if (BotManager.applySkin(ctx.getSource().getServer(), bot, url)) applied++;
         }
         int finalApplied = applied;
-        ctx.getSource().sendFeedback(() -> Text.literal("Skin saved. Applied to " + finalApplied + "/" + bots.size() + " online bot(s)."), false);
+        ctx.getSource()
+                .sendFeedback(
+                        () -> Text.literal(
+                                "Skin saved. Applied to " + finalApplied + "/" + bots.size() + " online bot(s)."),
+                        false);
         return applied;
     }
 
