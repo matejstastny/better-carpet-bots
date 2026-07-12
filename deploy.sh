@@ -11,9 +11,10 @@ echo "==> Building..."
 cd "$ROOT"
 ./gradlew build --no-daemon -q
 
-JAR=$(find build/libs -name "better-carpet-bots-*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1)
-if [[ -z "$JAR" ]]; then
-    echo "No jar found in build/libs."
+MOD_VERSION=$(grep '^mod_version=' "$ROOT/gradle.properties" | cut -d= -f2)
+JAR="build/libs/better-carpet-bots-${MOD_VERSION}.jar"
+if [[ ! -f "$JAR" ]]; then
+    echo "Expected jar not found: $JAR"
     exit 1
 fi
 JAR_NAME=$(basename "$JAR")
