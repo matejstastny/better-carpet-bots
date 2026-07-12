@@ -60,6 +60,16 @@ jobs:
                   RELEASE_NOTES: ${{ steps.changelog.outputs.notes }}
               run: ./gradlew modrinth --no-daemon
 
+            - name: Set Modrinth project environment
+              env:
+                  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+                  MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+              run: |
+                  curl -s -X PATCH "https://api.modrinth.com/v2/project/${MODRINTH_PROJECT_ID}" \
+                    -H "Authorization: ${MODRINTH_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    -d '{"server_side":"required","client_side":"optional"}'
+
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
