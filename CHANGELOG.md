@@ -18,11 +18,11 @@
 
 ## [1.0.0] - 2026-07-12
 ### Added
-- `/bot spawn [<name>]` — spawn a bot at your position
+- `/bot spawn [<name>]` - spawn a bot at your position
 - `/bot <name>` actions: attack, use, jump, sneak, sprint, stop, look, drop, dropstack, swaphands, inventory, kill
 - `attack`/`use` support `continuous` and `interval <ticks>` subcommands
 - `/bots` management commands: list, stop, kill, permissionLevel, skin
 - Bot inventory screen with armor slot filtering and glass pane placeholder labels
 - Bot inventory closes automatically when opener moves more than 10 blocks away
-- Real player protection — names of players who have joined are permanently locked from bot use
+- Real player protection - names of players who have joined are permanently locked from bot use
 - Offline player data for protected names is backed up to `world/bot-backup/<name>.bak`

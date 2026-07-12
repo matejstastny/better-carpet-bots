@@ -16,8 +16,8 @@ echo ""
 read -rp "New mod version: " NEW_MOD_VERSION
 
 if [[ -z "$NEW_MOD_VERSION" ]]; then
-    echo "Aborted: no version entered."
-    exit 1
+	echo "Aborted: no version entered."
+	exit 1
 fi
 
 TAG="v${NEW_MOD_VERSION}+${MC_VERSION}"
@@ -30,9 +30,9 @@ CHANGELOG_CONTENT=$(awk '
 ' "$CHANGELOG")
 
 if [[ -z "$(echo "$CHANGELOG_CONTENT" | tr -d '[:space:]')" ]]; then
-    echo ""
-    echo "## [Current] section is empty. Add your changelog entries first."
-    exit 1
+	echo ""
+	echo "## [Current] section is empty. Add your changelog entries first."
+	exit 1
 fi
 
 echo ""
@@ -43,7 +43,10 @@ echo "---"
 echo ""
 echo "Will create tag: $TAG"
 read -rp "Confirm? [y/N] " CONFIRM
-[[ "$CONFIRM" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
+[[ "$CONFIRM" =~ ^[Yy]$ ]] || {
+	echo "Aborted."
+	exit 1
+}
 
 TODAY=$(date +%Y-%m-%d)
 
@@ -68,4 +71,4 @@ git push origin HEAD
 git push origin "$TAG"
 
 echo ""
-echo "Pushed tag $TAG — release CI is now running."
+echo "Pushed tag $TAG - release CI is now running."
