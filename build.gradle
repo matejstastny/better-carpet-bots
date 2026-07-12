@@ -1,6 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom-remap' version '1.17.+'
     id 'maven-publish'
+    id 'com.modrinth.minotaur' version '2.+'
 }
 
 version = project.mod_version
@@ -55,5 +56,21 @@ java {
 jar {
     from("LICENSE") {
         rename { "${it}_${base.archivesName.get()}" }
+    }
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = System.getenv("MODRINTH_PROJECT_ID") ?: project.archives_base_name
+    versionNumber = project.mod_version
+    versionName = "v${project.mod_version} for MC ${project.minecraft_version}"
+    versionType = "release"
+    uploadFile = remapJar
+    additionalFiles = [sourcesJar]
+    gameVersions = [project.minecraft_version]
+    loaders = ["fabric"]
+    changelog = System.getenv("RELEASE_NOTES") ?: ""
+    dependencies {
+        required.project "carpet"
     }
 }
