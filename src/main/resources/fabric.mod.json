@@ -6,7 +6,7 @@
     "description": "Bot management extension for Carpet mod",
     "authors": ["Matej Stastny"],
     "license": "MIT",
-    "icon": "assets/better-carpet-bots/icon.png",
+    "icon": "icon.png",
     "environment": "*",
     "entrypoints": {
         "main": ["matejstastny.bettercarpetbots.CarpetBotsMod"],
