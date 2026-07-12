@@ -79,6 +79,13 @@ public final class BotManager {
         globalBotSkinUrl = url;
     }
 
+    public static void applyGlobalSkinToAllBots(MinecraftServer server) {
+        if (globalBotSkinUrl == null) return;
+        for (ServerPlayerEntity bot : getActiveBots(server)) {
+            applySkin(server, bot, globalBotSkinUrl);
+        }
+    }
+
     public static boolean applySkin(MinecraftServer server, ServerPlayerEntity bot, String url) {
         try {
             server.getCommandManager()

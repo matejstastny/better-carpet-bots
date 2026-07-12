@@ -12,8 +12,12 @@ public class CarpetBotsExtension implements CarpetExtension {
 
     @Override
     public void onServerLoaded(MinecraftServer server) {
+        BotConfig.load();
         BotManager.ensureBotTeam(server);
         BotManager.loadRealPlayers(server);
+        if (BotConfig.get().skinUrl != null) {
+            BotManager.setGlobalBotSkinUrl(BotConfig.get().skinUrl);
+        }
     }
 
     @Override

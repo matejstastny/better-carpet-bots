@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
+import matejstastny.bettercarpetbots.BotConfig;
 import matejstastny.bettercarpetbots.BotManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -102,6 +103,8 @@ public class BotsCommand {
 
     private static int skinAll(CommandContext<ServerCommandSource> ctx, String url) {
         BotManager.setGlobalBotSkinUrl(url);
+        BotConfig.get().skinUrl = url;
+        BotConfig.save();
         List<ServerPlayerEntity> bots = BotManager.getActiveBots(ctx.getSource().getServer());
         int applied = 0;
         for (ServerPlayerEntity bot : bots) {

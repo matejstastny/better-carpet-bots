@@ -29,6 +29,8 @@ dependencies {
 
     modImplementation fabricApi.module('fabric-networking-api-v1', project.fabric_api_version)
     modImplementation "maven.modrinth:carpet:${project.carpet_version}"
+
+    modCompileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
 }
 
 processResources {
