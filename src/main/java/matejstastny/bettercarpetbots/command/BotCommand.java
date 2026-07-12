@@ -224,7 +224,10 @@ public class BotCommand {
         MinecraftServer server = ctx.getSource().getServer();
         ServerPlayerEntity player = server.getPlayerManager().getPlayer(name);
         if (player == null) throw BOT_NOT_FOUND.create();
-        if (!(player instanceof EntityPlayerMPFake)) throw NOT_A_BOT.create();
+        if (!(player instanceof EntityPlayerMPFake)) {
+            ServerPlayerEntity caller = ctx.getSource().getPlayer();
+            if (caller == null || caller != player) throw NOT_A_BOT.create();
+        }
         return player;
     }
 

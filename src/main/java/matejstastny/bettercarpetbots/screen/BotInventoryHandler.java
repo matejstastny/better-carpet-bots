@@ -48,7 +48,7 @@ public class BotInventoryHandler extends ScreenHandler {
             makePlaceholder(Items.CYAN_STAINED_GLASS_PANE,   "Offhand"),
         };
 
-        // Point slots directly at the bot's live inventory — no proxy.
+        // Point slots directly at the bot's live inventory - no proxy.
         // This ensures the screen handler's own tracking picks up any changes
         // (items picked up by the bot, etc.) automatically every tick.
         PlayerInventory botInv = bot.getInventory();
@@ -99,7 +99,7 @@ public class BotInventoryHandler extends ScreenHandler {
      * After the vanilla sync sends real slot contents, visually replace empty
      * armor/offhand slots with glass pane placeholders on the client.
      *
-     * Keeping getStack() empty means vanilla insertion logic works normally —
+     * Keeping getStack() empty means vanilla insertion logic works normally -
      * the client sees the placeholder only as a visual hint.
      */
     @Override

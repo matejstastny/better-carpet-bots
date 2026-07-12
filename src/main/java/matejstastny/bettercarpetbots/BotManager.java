@@ -155,7 +155,7 @@ public final class BotManager {
             }
             Files.deleteIfExists(playerDataDir.resolve(offlineUUID + ".dat_old"));
         } catch (Exception e) {
-            // ignore — best-effort cleanup
+            // ignore - best-effort cleanup
         }
     }
 
