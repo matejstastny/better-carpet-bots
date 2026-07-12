@@ -1,0 +1,16 @@
+Fix & Feat:
+    - Make all players be offline when joined as bots, but when joined online for the first time, switch to online, making then never again be spawnable by /bot and resetting all of their player data
+    - `/bot <name> attack continuous` - attack untill /bot <name> stop
+    - `/bot <name> attack interval <ticks>` - attack every <ticks> ticks until /bot <name> stop
+    - same with `use` ^
+    - Fix `/bot inventory` to only work in 10 block reach of bot, and whitelist armor slots to only armor (currently able to put anything in armor slots) Also add a colored glass pane that is named what the slot is for, make sure its not takable (and dissapears on user put something there)
+
+Other:
+    - Remove old bot player data
+
+---
+
+Later:
+    - Unhardcode java path in gradle.properties
+    - write a readme
+    - install spotless
