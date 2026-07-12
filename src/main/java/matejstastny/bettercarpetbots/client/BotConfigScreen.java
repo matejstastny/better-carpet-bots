@@ -62,9 +62,13 @@ public class BotConfigScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(
-                this.textRenderer, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFF);
+                this.textRenderer, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFFFF);
         context.drawTextWithShadow(
-                this.textRenderer, Text.literal("Bot Skin URL"), this.width / 2 - 150, this.height / 2 - 25, 0xA0A0A0);
+                this.textRenderer,
+                Text.literal("Bot Skin URL"),
+                this.width / 2 - 150,
+                this.height / 2 - 25,
+                0xFFA0A0A0);
     }
 
     @Override
