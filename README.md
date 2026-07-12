@@ -69,13 +69,3 @@ The screen stays live - items the bot picks up appear immediately. The screen cl
 ## Real Player Protection
 
 When a player authenticated via Mojang joins for the first time, their name is permanently locked. `/bot spawn <thatName>` will be rejected from that point on. Any existing offline-UUID bot data for that name is backed up to `world/bot-backup/<name>.bak` before being cleaned up, so nothing is lost.
-
-## Releasing
-
-Add your notes under `## [Current]` in `CHANGELOG.md`, then run:
-
-```sh
-./release.sh
-```
-
-The script reads your entries from `## [Current]`, prompts for the new version, stamps a date and version header on that section, and leaves a fresh empty `## [Current]` for next time. It then commits, tags, and pushes — the release CI publishes to Modrinth and creates a GitHub Release using those notes.
