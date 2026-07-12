@@ -22,29 +22,17 @@ fi
 
 TAG="v${NEW_MOD_VERSION}+${MC_VERSION}"
 
-# Extract the changelog section for a given version
-extract_changelog() {
-    local ver="$1"
-    awk -v ver="$ver" '
-        /^## \[/ { if (flag) exit; if (index($0, "## [" ver "]") == 1) flag=1; next }
-        flag { print }
-    ' "$CHANGELOG"
-}
+# Read content under ## [Current]
+CHANGELOG_CONTENT=$(awk '
+    /^## \[Current\]/ { flag=1; next }
+    /^## \[/          { if (flag) exit }
+    flag              { print }
+' "$CHANGELOG")
 
-CHANGELOG_CONTENT=$(extract_changelog "$NEW_MOD_VERSION")
-
-if [[ -z "$CHANGELOG_CONTENT" ]]; then
+if [[ -z "$(echo "$CHANGELOG_CONTENT" | tr -d '[:space:]')" ]]; then
     echo ""
-    echo "No ## [${NEW_MOD_VERSION}] section found in CHANGELOG.md."
-    read -rp "Open CHANGELOG.md in \$EDITOR to add it now? [Y/n] " OPEN_EDITOR
-    if [[ ! "$OPEN_EDITOR" =~ ^[Nn]$ ]]; then
-        ${EDITOR:-nano} "$CHANGELOG"
-        CHANGELOG_CONTENT=$(extract_changelog "$NEW_MOD_VERSION")
-    fi
-    if [[ -z "$CHANGELOG_CONTENT" ]]; then
-        echo "No changelog section found. Aborting."
-        exit 1
-    fi
+    echo "## [Current] section is empty. Add your changelog entries first."
+    exit 1
 fi
 
 echo ""
@@ -57,6 +45,12 @@ echo "Will create tag: $TAG"
 read -rp "Confirm? [y/N] " CONFIRM
 [[ "$CONFIRM" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
 
+TODAY=$(date +%Y-%m-%d)
+
+# Replace ## [Current] with ## [Current]\n\n## [VERSION] - DATE
+# The existing content stays under the new versioned header; a fresh empty [Current] sits on top.
+sed -i "s/^## \[Current\]/## [Current]\n\n## [${NEW_MOD_VERSION}] - ${TODAY}/" "$CHANGELOG"
+
 # Update gradle.properties
 sed -i "s/^mod_version=.*/mod_version=${NEW_MOD_VERSION}/" "$PROPS"
 
@@ -64,10 +58,10 @@ sed -i "s/^mod_version=.*/mod_version=${NEW_MOD_VERSION}/" "$PROPS"
 sed -i "s/return \"${CURRENT_MOD_VERSION}\";/return \"${NEW_MOD_VERSION}\";/" "$EXT_FILE"
 
 echo ""
-echo "Updated gradle.properties and CarpetBotsExtension.java"
+echo "Updated CHANGELOG.md, gradle.properties, and CarpetBotsExtension.java"
 
 cd "$ROOT"
-git add "$PROPS" "$EXT_FILE" "$CHANGELOG"
+git add "$CHANGELOG" "$PROPS" "$EXT_FILE"
 git commit -m "chore: bump version to ${NEW_MOD_VERSION}"
 git tag "$TAG"
 git push origin HEAD

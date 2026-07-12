@@ -72,10 +72,10 @@ When a player authenticated via Mojang joins for the first time, their name is p
 
 ## Releasing
 
-Add a `## [x.y.z]` section to `CHANGELOG.md`, then run:
+Add your notes under `## [Current]` in `CHANGELOG.md`, then run:
 
 ```sh
 ./release.sh
 ```
 
-The script reads the Minecraft version from `gradle.properties`, prompts for the new mod version, shows the changelog section for confirmation, commits, and pushes a tag `v<mod_version>+<mc_version>`. The release CI publishes to Modrinth and creates a GitHub Release using the changelog text.
+The script reads your entries from `## [Current]`, prompts for the new version, stamps a date and version header on that section, and leaves a fresh empty `## [Current]` for next time. It then commits, tags, and pushes — the release CI publishes to Modrinth and creates a GitHub Release using those notes.
