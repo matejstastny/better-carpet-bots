@@ -1,8 +1,14 @@
 # Changelog
 
 ## [Current]
+
+## [1.1.0] - 2026-07-12
 ### CI
 - Added automatic chanelog managment
+
+### Refactor
+- Changed mod from being dedicated server only also working on survival servers
+- Added a GUI modmenu config replacing the `/bots skin all` command for singleplayer servers
 
 ## [1.0.1] - 2026-07-12
 ### Fixed
