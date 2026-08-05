@@ -2,7 +2,7 @@
 
 # Better Carpet Bots
 
-A [Carpet mod](https://github.com/gnembon/fabric-carpet) extension that adds powerful bot management commands to your Minecraft server.
+A [Carpet mod](https://github.com/gnembon/fabric-carpet) extension that adds better bot management commands to your Minecraft server.
 
 ### Requirements
 
