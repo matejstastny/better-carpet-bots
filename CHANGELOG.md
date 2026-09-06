@@ -2,6 +2,10 @@
 
 ## [Current]
 
+## [1.2.0] - 2026-09-06
+
+- Updated mod to MC 26.1
+
 ## [1.1.0] - 2026-07-12
 ### CI
 - Added automatic chanelog managment
