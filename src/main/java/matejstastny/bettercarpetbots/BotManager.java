@@ -11,16 +11,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.command.permission.LeveledPermissionPredicate;
-import net.minecraft.command.permission.PermissionCheck;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionCheck;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 
 public final class BotManager {
     public static final String TEAM_NAME = "bots";
@@ -30,11 +30,11 @@ public final class BotManager {
     private static final Set<String> realPlayerNames = new HashSet<>();
 
     private static final PermissionCheck[] LEVEL_CHECKS = {
-        CommandManager.ALWAYS_PASS_CHECK,
-        CommandManager.MODERATORS_CHECK,
-        CommandManager.GAMEMASTERS_CHECK,
-        CommandManager.ADMINS_CHECK,
-        CommandManager.OWNERS_CHECK,
+        Commands.LEVEL_ALL,
+        Commands.LEVEL_MODERATORS,
+        Commands.LEVEL_GAMEMASTERS,
+        Commands.LEVEL_ADMINS,
+        Commands.LEVEL_OWNERS,
     };
 
     public static int getBotPermissionLevel() {
@@ -53,19 +53,19 @@ public final class BotManager {
 
     public static void ensureBotTeam(MinecraftServer server) {
         Scoreboard sb = server.getScoreboard();
-        Team team = sb.getTeam(TEAM_NAME);
+        PlayerTeam team = sb.getPlayerTeam(TEAM_NAME);
         if (team == null) {
-            team = sb.addTeam(TEAM_NAME);
+            team = sb.addPlayerTeam(TEAM_NAME);
         }
-        team.setColor(Formatting.GREEN);
-        team.setPrefix(Text.literal("[Bot] ").formatted(Formatting.GREEN));
+        team.setColor(ChatFormatting.GREEN);
+        team.setPlayerPrefix(Component.literal("[Bot] ").withStyle(ChatFormatting.GREEN));
     }
 
     public static void addToTeam(MinecraftServer server, String playerName) {
         ensureBotTeam(server);
         Scoreboard sb = server.getScoreboard();
-        Team team = sb.getTeam(TEAM_NAME);
-        sb.addScoreHolderToTeam(playerName, team);
+        PlayerTeam team = sb.getPlayerTeam(TEAM_NAME);
+        sb.addPlayerToTeam(playerName, team);
     }
 
     public static String getGlobalBotSkinUrl() {
@@ -81,18 +81,18 @@ public final class BotManager {
 
     public static void applyGlobalSkinToAllBots(MinecraftServer server) {
         if (globalBotSkinUrl == null) return;
-        for (ServerPlayerEntity bot : getActiveBots(server)) {
+        for (ServerPlayer bot : getActiveBots(server)) {
             applySkin(server, bot, globalBotSkinUrl);
         }
     }
 
-    public static boolean applySkin(MinecraftServer server, ServerPlayerEntity bot, String url) {
+    public static boolean applySkin(MinecraftServer server, ServerPlayer bot, String url) {
         try {
-            server.getCommandManager()
-                    .parseAndExecute(
-                            bot.getCommandSource()
-                                    .withPermissions(LeveledPermissionPredicate.OWNERS)
-                                    .withSilent(),
+            server.getCommands()
+                    .performPrefixedCommand(
+                            bot.createCommandSourceStack()
+                                    .withPermission(LevelBasedPermissionSet.OWNER)
+                                    .withSuppressedOutput(),
                             "skin set web slim \"" + url + "\"");
             return true;
         } catch (Exception e) {
@@ -101,15 +101,15 @@ public final class BotManager {
     }
 
     /** Called from CarpetExtension.onPlayerLoggedIn for every joining player. */
-    public static void onPlayerJoin(ServerPlayerEntity player) {
+    public static void onPlayerJoin(ServerPlayer player) {
         MinecraftServer server = CarpetServer.minecraft_server;
         if (player instanceof EntityPlayerMPFake) {
-            addToTeam(server, player.getNameForScoreboard());
+            addToTeam(server, player.getScoreboardName());
             if (globalBotSkinUrl != null) {
                 applySkin(server, player, globalBotSkinUrl);
             }
         } else {
-            markAsRealPlayer(server, player.getNameForScoreboard());
+            markAsRealPlayer(server, player.getScoreboardName());
         }
     }
 
@@ -158,8 +158,8 @@ public final class BotManager {
     private static void deleteOfflinePlayerData(MinecraftServer server, String name) {
         try {
             UUID offlineUUID = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
-            Path playerDataDir = server.getSavePath(WorldSavePath.PLAYERDATA);
-            Path backupDir = server.getSavePath(WorldSavePath.ROOT).resolve("bot-backup");
+            Path playerDataDir = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
+            Path backupDir = server.getWorldPath(LevelResource.ROOT).resolve("bot-backup");
             Files.createDirectories(backupDir);
 
             Path dat = playerDataDir.resolve(offlineUUID + ".dat");
@@ -174,7 +174,7 @@ public final class BotManager {
     }
 
     private static Path getRealPlayersFile(MinecraftServer server) {
-        return server.getSavePath(WorldSavePath.ROOT)
+        return server.getWorldPath(LevelResource.ROOT)
                 .resolve("better-carpet-bots")
                 .resolve("real-players.txt");
     }
@@ -182,13 +182,13 @@ public final class BotManager {
     // ---
 
     public static boolean isBotMember(MinecraftServer server, String name) {
-        Team team = server.getScoreboard().getTeam(TEAM_NAME);
-        return team != null && team.getPlayerList().contains(name);
+        PlayerTeam team = server.getScoreboard().getPlayerTeam(TEAM_NAME);
+        return team != null && team.getPlayers().contains(name);
     }
 
-    public static List<ServerPlayerEntity> getActiveBots(MinecraftServer server) {
-        List<ServerPlayerEntity> bots = new ArrayList<>();
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+    public static List<ServerPlayer> getActiveBots(MinecraftServer server) {
+        List<ServerPlayer> bots = new ArrayList<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player instanceof EntityPlayerMPFake) {
                 bots.add(player);
             }
@@ -201,7 +201,7 @@ public final class BotManager {
         int i = 1;
         while (true) {
             String name = "Bot" + i;
-            if (server.getPlayerManager().getPlayer(name) == null) {
+            if (server.getPlayerList().getPlayer(name) == null) {
                 return name;
             }
             i++;

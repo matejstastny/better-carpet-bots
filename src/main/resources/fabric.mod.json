@@ -15,7 +15,7 @@
     "mixins": [],
     "depends": {
         "minecraft": "${mcversions}",
-        "fabricloader": ">=0.15.0",
+        "fabricloader": ">=0.18.4",
         "carpet": "*"
     },
     "suggests": {

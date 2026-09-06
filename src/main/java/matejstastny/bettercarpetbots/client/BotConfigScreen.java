@@ -2,20 +2,20 @@ package matejstastny.bettercarpetbots.client;
 
 import matejstastny.bettercarpetbots.BotConfig;
 import matejstastny.bettercarpetbots.BotManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
 
 public class BotConfigScreen extends Screen {
     private final Screen parent;
-    private TextFieldWidget skinUrlField;
+    private EditBox skinUrlField;
 
     public BotConfigScreen(Screen parent) {
-        super(Text.literal("Better Carpet Bots"));
+        super(Component.literal("Better Carpet Bots"));
         this.parent = parent;
     }
 
@@ -24,55 +24,55 @@ public class BotConfigScreen extends Screen {
         int cx = this.width / 2;
         int cy = this.height / 2;
 
-        this.skinUrlField = new TextFieldWidget(this.textRenderer, cx - 150, cy - 10, 300, 20, Text.empty());
+        this.skinUrlField = new EditBox(this.font, cx - 150, cy - 10, 300, 20, Component.empty());
         this.skinUrlField.setMaxLength(512);
         String current = BotConfig.get().skinUrl;
-        this.skinUrlField.setText(current != null ? current : "");
-        this.addDrawableChild(this.skinUrlField);
-        this.setFocused(this.skinUrlField);
+        this.skinUrlField.setValue(current != null ? current : "");
+        this.addRenderableWidget(this.skinUrlField);
+        this.setInitialFocus(this.skinUrlField);
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Save & Apply"), btn -> save())
-                .dimensions(cx - 155, cy + 20, 150, 20)
+        this.addRenderableWidget(Button.builder(Component.literal("Save & Apply"), btn -> save())
+                .bounds(cx - 155, cy + 20, 150, 20)
                 .build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Cancel"), btn -> this.client.setScreen(parent))
-                .dimensions(cx + 5, cy + 20, 150, 20)
+        this.addRenderableWidget(Button.builder(Component.literal("Cancel"), btn -> this.minecraft.setScreen(parent))
+                .bounds(cx + 5, cy + 20, 150, 20)
                 .build());
     }
 
     private void save() {
-        String url = this.skinUrlField.getText().trim();
+        String url = this.skinUrlField.getValue().trim();
         BotConfig.get().skinUrl = url.isEmpty() ? null : url;
         BotConfig.save();
 
         if (!url.isEmpty()) {
-            MinecraftServer server = MinecraftClient.getInstance().getServer();
+            MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
             if (server != null) {
-                server.execute(() -> {
+                server.executeIfPossible(() -> {
                     BotManager.setGlobalBotSkinUrl(url);
                     BotManager.applyGlobalSkinToAllBots(server);
                 });
             }
         }
 
-        this.client.setScreen(parent);
+        this.minecraft.setScreen(parent);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(
-                this.textRenderer, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFFFF);
-        context.drawTextWithShadow(
-                this.textRenderer,
-                Text.literal("Bot Skin URL"),
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, delta);
+        guiGraphics.centeredText(this.font, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFFFF);
+        guiGraphics.text(
+                this.font,
+                Component.literal("Bot Skin URL"),
                 this.width / 2 - 150,
                 this.height / 2 - 25,
-                0xFFA0A0A0);
+                0xFFA0A0A0,
+                true);
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

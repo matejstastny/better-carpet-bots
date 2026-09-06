@@ -4,9 +4,9 @@ import carpet.CarpetExtension;
 import com.mojang.brigadier.CommandDispatcher;
 import matejstastny.bettercarpetbots.command.BotCommand;
 import matejstastny.bettercarpetbots.command.BotsCommand;
-import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 
 public class CarpetBotsExtension implements CarpetExtension {
 
@@ -21,8 +21,7 @@ public class CarpetBotsExtension implements CarpetExtension {
     }
 
     @Override
-    public void registerCommands(
-            CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+    public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
         BotCommand.register(dispatcher);
         BotsCommand.register(dispatcher);
     }
@@ -33,7 +32,7 @@ public class CarpetBotsExtension implements CarpetExtension {
     }
 
     @Override
-    public void onPlayerLoggedIn(net.minecraft.server.network.ServerPlayerEntity player) {
+    public void onPlayerLoggedIn(net.minecraft.server.level.ServerPlayer player) {
         BotManager.onPlayerJoin(player);
     }
 }

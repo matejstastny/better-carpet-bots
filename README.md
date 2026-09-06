@@ -6,7 +6,8 @@ A [Carpet mod](https://github.com/gnembon/fabric-carpet) extension that adds bet
 
 ### Requirements
 
-- [Fabric Loader](https://fabricmc.net/) ≥ 0.15.0
+- Minecraft 26.1
+- [Fabric Loader](https://fabricmc.net/) ≥ 0.18.4
 - [Carpet Mod](https://modrinth.com/mod/carpet)
 
 ## Commands

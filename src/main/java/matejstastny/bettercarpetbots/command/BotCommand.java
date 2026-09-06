@@ -1,6 +1,6 @@
 package matejstastny.bettercarpetbots.command;
 
-import static net.minecraft.server.command.CommandManager.*;
+import static net.minecraft.commands.Commands.*;
 
 import carpet.fakes.ServerPlayerInterface;
 import carpet.helpers.EntityPlayerActionPack;
@@ -16,28 +16,29 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import matejstastny.bettercarpetbots.BotManager;
 import matejstastny.bettercarpetbots.screen.BotInventoryHandler;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class BotCommand {
 
     private static final SimpleCommandExceptionType BOT_NOT_FOUND =
-            new SimpleCommandExceptionType(Text.literal("Bot not found or not online."));
+            new SimpleCommandExceptionType(Component.literal("Bot not found or not online."));
     private static final SimpleCommandExceptionType NOT_A_BOT =
-            new SimpleCommandExceptionType(Text.literal("That player is not a bot."));
+            new SimpleCommandExceptionType(Component.literal("That player is not a bot."));
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("bot")
-                .requires(src -> BotManager.getBotPermissionCheck().allows(src.getPermissions()))
+                .requires(Commands.hasPermission(BotManager.getBotPermissionCheck()))
 
                 // /bot spawn [<name>]
                 .then(literal("spawn")
@@ -48,12 +49,12 @@ public class BotCommand {
                 // /bot <name> <action>
                 .then(argument("botname", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
-                            for (ServerPlayerEntity p :
+                            for (ServerPlayer p :
                                     BotManager.getActiveBots(ctx.getSource().getServer())) {
-                                builder.suggest(p.getNameForScoreboard());
+                                builder.suggest(p.getScoreboardName());
                             }
-                            ServerPlayerEntity caller = ctx.getSource().getPlayer();
-                            if (caller != null) builder.suggest(caller.getNameForScoreboard());
+                            ServerPlayer caller = ctx.getSource().getPlayer();
+                            if (caller != null) builder.suggest(caller.getScoreboardName());
                             return builder.buildFuture();
                         })
                         .then(literal("attack")
@@ -123,35 +124,35 @@ public class BotCommand {
 
     // --- Spawn ---
 
-    private static int spawnBot(CommandContext<ServerCommandSource> ctx, String rawName) throws CommandSyntaxException {
-        ServerCommandSource src = ctx.getSource();
+    private static int spawnBot(CommandContext<CommandSourceStack> ctx, String rawName) throws CommandSyntaxException {
+        CommandSourceStack src = ctx.getSource();
         MinecraftServer server = src.getServer();
 
         String name = (rawName == null || rawName.isBlank()) ? BotManager.nextAutoName(server) : rawName;
 
         if (!isValidName(name)) {
-            src.sendError(
-                    Text.literal("Invalid name '" + name + "': must be 1-16 chars, letters/digits/underscores only."));
+            src.sendFailure(Component.literal(
+                    "Invalid name '" + name + "': must be 1-16 chars, letters/digits/underscores only."));
             return 0;
         }
         if (BotManager.isRealPlayer(name)) {
-            src.sendError(Text.literal("'" + name + "' is a real player and cannot be spawned as a bot."));
+            src.sendFailure(Component.literal("'" + name + "' is a real player and cannot be spawned as a bot."));
             return 0;
         }
-        if (server.getPlayerManager().getPlayer(name) != null) {
-            src.sendError(Text.literal("A player named '" + name + "' is already online."));
+        if (server.getPlayerList().getPlayer(name) != null) {
+            src.sendFailure(Component.literal("A player named '" + name + "' is already online."));
             return 0;
         }
 
-        ServerPlayerEntity executor = src.getPlayerOrThrow();
-        Vec3d pos = new Vec3d(executor.getX(), executor.getY(), executor.getZ());
-        ServerWorld world = src.getWorld();
-        RegistryKey<World> worldKey = world.getRegistryKey();
-        double yaw = executor.getYaw();
+        ServerPlayer executor = src.getPlayerOrException();
+        Vec3 pos = new Vec3(executor.getX(), executor.getY(), executor.getZ());
+        ServerLevel level = src.getLevel();
+        ResourceKey<Level> levelKey = level.dimension();
+        double yaw = executor.getYRot();
 
-        boolean started = EntityPlayerMPFake.createFake(name, server, pos, yaw, 0, worldKey, GameMode.SURVIVAL, false);
+        boolean started = EntityPlayerMPFake.createFake(name, server, pos, yaw, 0, levelKey, GameType.SURVIVAL, false);
         if (!started) {
-            src.sendError(Text.literal("Failed to spawn bot '" + name + "'."));
+            src.sendFailure(Component.literal("Failed to spawn bot '" + name + "'."));
             return 0;
         }
 
@@ -165,66 +166,66 @@ public class BotCommand {
         void accept(EntityPlayerActionPack ap) throws Exception;
     }
 
-    private static int action(CommandContext<ServerCommandSource> ctx, ActionConsumer consumer)
+    private static int action(CommandContext<CommandSourceStack> ctx, ActionConsumer consumer)
             throws CommandSyntaxException {
-        ServerPlayerEntity bot = getBot(ctx);
+        ServerPlayer bot = getBot(ctx);
         EntityPlayerActionPack ap = ((ServerPlayerInterface) bot).getActionPack();
         try {
             consumer.accept(ap);
         } catch (CommandSyntaxException e) {
             throw e;
         } catch (Exception e) {
-            ctx.getSource().sendError(Text.literal("Action failed: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.literal("Action failed: " + e.getMessage()));
             return 0;
         }
         return 1;
     }
 
-    private static int drop(CommandContext<ServerCommandSource> ctx, boolean fullStack) throws CommandSyntaxException {
-        ServerPlayerEntity bot = getBot(ctx);
+    private static int drop(CommandContext<CommandSourceStack> ctx, boolean fullStack) throws CommandSyntaxException {
+        ServerPlayer bot = getBot(ctx);
         ((ServerPlayerInterface) bot).getActionPack().drop(bot.getInventory().getSelectedSlot(), fullStack);
         return 1;
     }
 
     // --- Kill ---
 
-    private static int killBot(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity bot = getBot(ctx);
+    private static int killBot(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer bot = getBot(ctx);
         if (bot instanceof EntityPlayerMPFake fake) {
-            fake.kill(Text.literal("Removed by /bot kill"));
+            fake.kill(Component.literal("Removed by /bot kill"));
         } else {
-            bot.networkHandler.disconnect(Text.literal("Removed by /bot kill"));
+            bot.connection.disconnect(Component.literal("Removed by /bot kill"));
         }
         return 1;
     }
 
     // --- Inventory ---
 
-    private static int openInventory(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        ServerCommandSource src = ctx.getSource();
-        ServerPlayerEntity opener = src.getPlayerOrThrow();
-        ServerPlayerEntity bot = getBot(ctx);
+    private static int openInventory(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack src = ctx.getSource();
+        ServerPlayer opener = src.getPlayerOrException();
+        ServerPlayer bot = getBot(ctx);
 
-        if (opener.squaredDistanceTo(bot) > 100.0) {
-            src.sendError(Text.literal("Too far from bot (max 10 blocks)."));
+        if (opener.distanceToSqr(bot) > 100.0) {
+            src.sendFailure(Component.literal("Too far from bot (max 10 blocks)."));
             return 0;
         }
 
-        opener.openHandledScreen(new SimpleNamedScreenHandlerFactory(
+        opener.openMenu(new SimpleMenuProvider(
                 (syncId, openerInv, player) -> new BotInventoryHandler(syncId, openerInv, bot),
-                Text.literal("Bot: " + bot.getNameForScoreboard())));
+                Component.literal("Bot: " + bot.getScoreboardName())));
         return 1;
     }
 
     // --- Helpers ---
 
-    private static ServerPlayerEntity getBot(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static ServerPlayer getBot(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         String name = StringArgumentType.getString(ctx, "botname");
         MinecraftServer server = ctx.getSource().getServer();
-        ServerPlayerEntity player = server.getPlayerManager().getPlayer(name);
+        ServerPlayer player = server.getPlayerList().getPlayer(name);
         if (player == null) throw BOT_NOT_FOUND.create();
         if (!(player instanceof EntityPlayerMPFake)) {
-            ServerPlayerEntity caller = ctx.getSource().getPlayer();
+            ServerPlayer caller = ctx.getSource().getPlayer();
             if (caller == null || caller != player) throw NOT_A_BOT.create();
         }
         return player;
