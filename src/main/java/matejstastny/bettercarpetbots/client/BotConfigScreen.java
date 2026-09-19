@@ -35,9 +35,10 @@ public class BotConfigScreen extends Screen {
                 .bounds(cx - 155, cy + 20, 150, 20)
                 .build());
 
-        this.addRenderableWidget(Button.builder(Component.literal("Cancel"), btn -> this.minecraft.setScreen(parent))
-                .bounds(cx + 5, cy + 20, 150, 20)
-                .build());
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Cancel"), btn -> this.minecraft.setScreenAndShow(parent))
+                        .bounds(cx + 5, cy + 20, 150, 20)
+                        .build());
     }
 
     private void save() {
@@ -55,7 +56,7 @@ public class BotConfigScreen extends Screen {
             }
         }
 
-        this.minecraft.setScreen(parent);
+        this.minecraft.setScreenAndShow(parent);
     }
 
     @Override

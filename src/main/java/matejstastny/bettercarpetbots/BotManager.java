@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
@@ -21,6 +22,7 @@ import net.minecraft.server.permissions.PermissionCheck;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.TeamColor;
 
 public final class BotManager {
     public static final String TEAM_NAME = "bots";
@@ -57,7 +59,7 @@ public final class BotManager {
         if (team == null) {
             team = sb.addPlayerTeam(TEAM_NAME);
         }
-        team.setColor(ChatFormatting.GREEN);
+        team.setColor(Optional.of(TeamColor.GREEN));
         team.setPlayerPrefix(Component.literal("[Bot] ").withStyle(ChatFormatting.GREEN));
     }
 

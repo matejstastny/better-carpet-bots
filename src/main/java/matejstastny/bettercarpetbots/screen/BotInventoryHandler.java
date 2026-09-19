@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -41,11 +42,11 @@ public class BotInventoryHandler extends AbstractContainerMenu {
         this.fillerInv = new SimpleContainer(4);
 
         this.armorOffhandPlaceholders = new ItemStack[] {
-            makePlaceholder(Items.RED_STAINED_GLASS_PANE, "Helmet"),
-            makePlaceholder(Items.ORANGE_STAINED_GLASS_PANE, "Chestplate"),
-            makePlaceholder(Items.YELLOW_STAINED_GLASS_PANE, "Leggings"),
-            makePlaceholder(Items.GREEN_STAINED_GLASS_PANE, "Boots"),
-            makePlaceholder(Items.CYAN_STAINED_GLASS_PANE, "Offhand"),
+            makePlaceholder(Items.STAINED_GLASS_PANE.pick(DyeColor.RED), "Helmet"),
+            makePlaceholder(Items.STAINED_GLASS_PANE.pick(DyeColor.ORANGE), "Chestplate"),
+            makePlaceholder(Items.STAINED_GLASS_PANE.pick(DyeColor.YELLOW), "Leggings"),
+            makePlaceholder(Items.STAINED_GLASS_PANE.pick(DyeColor.GREEN), "Boots"),
+            makePlaceholder(Items.STAINED_GLASS_PANE.pick(DyeColor.CYAN), "Offhand"),
         };
 
         // Point slots directly at the bot's live inventory - no proxy.
@@ -168,7 +169,7 @@ public class BotInventoryHandler extends AbstractContainerMenu {
 
         FillerSlot(Container inv, int index, int x, int y) {
             super(inv, index, x, y);
-            this.pane = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
+            this.pane = new ItemStack(Items.STAINED_GLASS_PANE.pick(DyeColor.GRAY));
             this.pane.set(DataComponents.CUSTOM_NAME, Component.literal(" ").withStyle(s -> s.withItalic(false)));
         }
 
