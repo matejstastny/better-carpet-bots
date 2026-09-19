@@ -2,6 +2,10 @@
 
 ## [Current]
 
+## [1.3.0] - 2026-09-19
+
+- Updated mod to MC 26.2
+
 ## [1.2.0] - 2026-09-06
 
 - Updated mod to MC 26.1
