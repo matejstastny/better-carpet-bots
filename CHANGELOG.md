@@ -2,6 +2,10 @@
 
 ## [Current]
 
+## [1.3.1] - 2026-09-19
+
+- Commited code changes I lowk forgot to commit in broken 1.3.0
+
 ## [1.3.0] - 2026-09-19
 
 - Updated mod to MC 26.2
